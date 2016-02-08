@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
 /**
  * Created by drewmahrt on 12/28/15.
  */
-public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
+public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper {
     private static final String TAG = ShoppingSQLiteOpenHelper.class.getCanonicalName();
 
     private static final int DATABASE_VERSION = 7;
@@ -32,7 +32,7 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
 
     private Context mHelperContext;
 
-    public static final String[] SHOPPING_COLUMNS = {COL_ID,COL_ITEM_NAME,COL_ITEM_DESCRIPTION,COL_ITEM_PRICE,COL_ITEM_TYPE};
+    public static final String[] SHOPPING_COLUMNS = {COL_ID, COL_ITEM_NAME, COL_ITEM_DESCRIPTION, COL_ITEM_PRICE, COL_ITEM_TYPE};
 
     private static final String CREATE_SHOPPING_LIST_TABLE =
             "CREATE TABLE " + SHOPPING_LIST_TABLE_NAME +
@@ -46,8 +46,8 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
 
     private static ShoppingSQLiteOpenHelper instance;
 
-    public static ShoppingSQLiteOpenHelper getInstance(Context context){
-        if(instance == null){
+    public static ShoppingSQLiteOpenHelper getInstance(Context context) {
+        if (instance == null) {
             instance = new ShoppingSQLiteOpenHelper(context);
         }
         return instance;
@@ -61,10 +61,10 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_SHOPPING_LIST_TABLE);
-        try{
+        try {
             loadShoppingInfo(db);
-        }catch (Exception e){
-            Log.e(TAG,e.toString());
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
         }
     }
 
@@ -75,7 +75,7 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
     }
 
     //Add new itinerary list
-    public long addItem(String name, String description, String price, String type){
+    public long addItem(String name, String description, String price, String type) {
         ContentValues values = new ContentValues();
         values.put(COL_ITEM_NAME, name);
         values.put(COL_ITEM_DESCRIPTION, description);
@@ -88,7 +88,7 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
         return returnId;
     }
 
-    public Cursor getShoppingList(){
+    public Cursor getShoppingList() {
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -104,7 +104,7 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
         return cursor;
     }
 
-    public int deleteItem(int id){
+    public int deleteItem(int id) {
         SQLiteDatabase db = getWritableDatabase();
         int deleteNum = db.delete(SHOPPING_LIST_TABLE_NAME,
                 COL_ID + " = ?",
@@ -132,12 +132,29 @@ public class ShoppingSQLiteOpenHelper extends SQLiteOpenHelper{
                 long id = db.insert(SHOPPING_LIST_TABLE_NAME, null, values);
                 if (id < 0) {
                     Log.e(TAG, "unable to add entry");
-                }else{
-                    Log.d(TAG,"Added item to database: "+strings[0]);
+                } else {
+                    Log.d(TAG, "Added item to database: " + strings[0]);
                 }
             }
         } finally {
             reader.close();
         }
     }
+
+    public Cursor searchList(String query) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursorSearch = db.query(SHOPPING_LIST_TABLE_NAME, // a. table
+                SHOPPING_COLUMNS, // b. column names
+                COL_ITEM_NAME + " LIKE ?", // c. selections
+                new String[]{"%" + query + "%"}, // d. selections args
+                null, // e. group by
+                null, // f. having
+                null, // g. order by
+                null); // h. limit
+
+        return cursorSearch;
+    }
+
 }
+
